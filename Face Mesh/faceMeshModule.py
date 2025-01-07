@@ -1,48 +1,40 @@
 import cv2 as cv 
 import mediapipe as mp 
 
-cap = cv.VideoCapture(0)
 
-mpfaceMesh = mp.solutions.face_mesh
-mpDraw = mp.solutions.drawing_utils
-faceMesh = mpfaceMesh.FaceMesh()
-drawSpec = mpDraw.DrawingSpec(thickness=1,circle_radius=1 , color=(255,255,0))
+class FaceMeshDector():
+    def __init__(self, num_face=1):
+        self.num_face = num_face
 
-while True:
-    success, img = cap.read()
-    imgRGB = cv.cvtColor(img, cv.COLOR_RGB2BGR)
-    results = faceMesh.process(imgRGB)
+        self.mpfaceMesh = mp.solutions.face_mesh
+        self.mpDraw = mp.solutions.drawing_utils
+        self.faceMesh = self.mpfaceMesh.FaceMesh(max_num_faces= self.num_face)
+        self.drawSpec = self.mpDraw.DrawingSpec(thickness=1,circle_radius=1 , color=(255,255,0))
 
-    if results.multi_face_landmarks:
-        for landmks in results.multi_face_landmarks:
-            mpDraw.draw_landmarks(img,landmks, mpfaceMesh.FACEMESH_CONTOURS, drawSpec,drawSpec)
-            for id,lm in enumerate(landmks.landmark):
-                #print(lm)
-                ih, iw, ic = img.shape
-                x,y = int(lm.x*iw), int(lm.y*ih)
-                print(id,x,y)
-
-    cv.imshow("face mesh", img)
-    if cv.waitKey(20) & 0xff == ord("q"):
-        break
-
-
-
-def main():
-    while True:
-        success, img = cap.read()
+    def findFaceMesh(self, img):
         imgRGB = cv.cvtColor(img, cv.COLOR_RGB2BGR)
-        results = faceMesh.process(imgRGB)
+        self.results = self.faceMesh.process(imgRGB)
 
-        if results.multi_face_landmarks:
-            for landmks in results.multi_face_landmarks:
-                mpDraw.draw_landmarks(img,landmks, mpfaceMesh.FACEMESH_CONTOURS, drawSpec,drawSpec)
+        if self.results.multi_face_landmarks:
+            for landmks in self.results.multi_face_landmarks:
+                self.mpDraw.draw_landmarks(img,landmks, self.mpfaceMesh.FACEMESH_CONTOURS, self.drawSpec,self.drawSpec)
+
                 for id,lm in enumerate(landmks.landmark):
                     #print(lm)
                     ih, iw, ic = img.shape
                     x,y = int(lm.x*iw), int(lm.y*ih)
                     print(id,x,y)
 
+
+
+def main():
+
+    cap = cv.VideoCapture(0)
+    face = FaceMeshDector()
+
+    while True:
+        success, img = cap.read()
+        face.findFaceMesh(img)
         cv.imshow("face mesh", img)
         if cv.waitKey(20) & 0xff == ord("q"):
             break
