@@ -23,7 +23,7 @@ class FaceMeshDector():
                     #print(lm)
                     ih, iw, ic = img.shape
                     x,y = int(lm.x*iw), int(lm.y*ih)
-                    print(id,x,y)
+                    #print(id,x,y)
 
 
 
